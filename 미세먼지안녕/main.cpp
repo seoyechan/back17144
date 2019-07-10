@@ -16,6 +16,7 @@ typedef struct pos{
 	int x, y, value;
 };
 vector <pos> dust_v;
+vector <pos> dust_add_v;
 
 int dirx[4] = { 0, 0, 1, -1 };
 int diry[4] = { 1, -1, 0, 0 };
@@ -28,8 +29,8 @@ int fnSol()
 		int nextx = 0;
 		int nexty = 0;
 		int dust_size = dust_v.size();
-		int nfiled_copy[51][51] = { 0, };
 
+		dust_add_v.clear();
 		for (int i = 0; i < dust_size; i++)
 		{
 			int add_dust = 0;
@@ -40,17 +41,15 @@ int fnSol()
 
 				if (nextx >= 0 && nextx < c && nexty >= 0 && nexty < r && nfiled[nexty][nextx] != -1)
 				{
-					nfiled_copy[nexty][nextx] += dust_v[i].value / 5;
+					dust_add_v.push_back({ nextx, nexty, dust_v[i].value / 5 });
 					add_dust++;
 				}
 			}
 			nfiled[dust_v[i].y][dust_v[i].x] = (dust_v[i].value - ((dust_v[i].value / 5) * add_dust));
 		}
 
-		for (int i = 0; i < r; i++){
-			for (int j = 0; j < c; j++){
-				nfiled[i][j] = nfiled[i][j] + nfiled_copy[i][j];
-			}
+		for (int i = 0; i < dust_add_v.size(); i++){
+			nfiled[dust_add_v[i].y][dust_add_v[i].x] += dust_add_v[i].value;
 		}
 
 		for (int i = fresh_air_pos[1] - 2; i >= 0; i--){
