@@ -9,6 +9,7 @@ using namespace std;
 int nfiled[51][51];
 int time;
 int r, c;
+int nRet;
 int fresh_air_pos[4];
 
 typedef struct pos{
@@ -19,7 +20,6 @@ vector <pos> dust_v;
 int dirx[4] = { 0, 0, 1, -1 };
 int diry[4] = { 1, -1, 0, 0 };
 
-
 int fnSol()
 {
 	for (int t = 0; t < time; t++)
@@ -27,33 +27,68 @@ int fnSol()
 		////////
 		int nextx = 0;
 		int nexty = 0;
-		for (int i = 0; i < dust_v.size(); i++)
+		int dust_size = dust_v.size();
+		int nfiled_copy[51][51] = { 0, };
+
+		for (int i = 0; i < dust_size; i++)
 		{
 			int add_dust = 0;
-			for (int j = 0; i < 4; j++)
+			for (int j = 0; j < 4; j++)
 			{
 				nextx = dust_v[i].x + dirx[j];
 				nexty = dust_v[i].y + diry[j];
 
-				
-				if (nextx >= 0 && nextx < r && nexty >= 0 && nexty < c && nfiled[nexty][nextx] != -1)
+				if (nextx >= 0 && nextx < c && nexty >= 0 && nexty < r && nfiled[nexty][nextx] != -1)
 				{
-
-
-
+					nfiled_copy[nexty][nextx] += dust_v[i].value / 5;
 					add_dust++;
 				}
-				nfiled[dust_v[i].y][dust_v[i].x] = (nfiled[dust_v[i].y][dust_v[i].x] / 5) * add_dust;
+			}
+			nfiled[dust_v[i].y][dust_v[i].x] = (dust_v[i].value - ((dust_v[i].value / 5) * add_dust));
+		}
 
-
+		for (int i = 0; i < r; i++){
+			for (int j = 0; j < c; j++){
+				nfiled[i][j] = nfiled[i][j] + nfiled_copy[i][j];
 			}
 		}
 
+		for (int i = fresh_air_pos[1] - 2; i >= 0; i--){
+			nfiled[i + 1][0] = nfiled[i][0];
+		}
+		for (int i = 1; i < c; i++){
+			nfiled[0][i - 1] = nfiled[0][i];
+		}
+		for (int i = 1; i <= fresh_air_pos[1]; i++){
+			nfiled[i - 1][c - 1] = nfiled[i][c - 1];
+		}
+		for (int i = c - 2; i >= 1; i--){
+			nfiled[fresh_air_pos[1]][i + 1] = nfiled[fresh_air_pos[1]][i];
+		}
+		nfiled[fresh_air_pos[1]][1] = 0;
 
+		for (int i = fresh_air_pos[3] + 2; i < r; i++){
+			nfiled[i - 1][0] = nfiled[i][0];
+		}
+		for (int i = 1; i < c; i++){
+			nfiled[r - 1][i - 1] = nfiled[r - 1][i];
+		}
+		for (int i = r - 2; i >= fresh_air_pos[3]; i--){
+			nfiled[i + 1][c - 1] = nfiled[i][c - 1];
+		}
+		for (int i = c - 2; i >= 1; i--){
+			nfiled[fresh_air_pos[3]][i + 1] = nfiled[fresh_air_pos[3]][i];
+		}
+		nfiled[fresh_air_pos[3]][1] = 0;
 
-
-
-
+		dust_v.clear();
+		for (int i = 0; i < r; i++){
+			for (int j = 0; j < c; j++){
+				if (nfiled[i][j] != 0 && nfiled[i][j] != -1){
+					dust_v.push_back({ j, i, nfiled[i][j] });
+				}
+			}
+		}
 
 	}
 	return 0;
@@ -76,8 +111,9 @@ int main()
 
 		int index = 0;
 		dust_v.clear();
-		for (int i = 0; i < c; i++){
-			for (int j = 0; j < r; j++){
+
+		for (int i = 0; i < r; i++){
+			for (int j = 0; j < c; j++){
 				scanf("%d", &nfiled[i][j]);
 				if (nfiled[i][j] == -1){
 					fresh_air_pos[index] = j;
@@ -90,9 +126,16 @@ int main()
 				}
 			}
 		}
+
 		fnSol();
 
-
+		nRet = 2;
+		for (int i = 0; i < r; i++){
+			for (int j = 0; j < c; j++){
+				nRet += nfiled[i][j];
+			}
+		}
+		printf("#%d %d\n", test_case, nRet);
 	}
 
 
